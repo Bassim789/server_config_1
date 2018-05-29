@@ -13,11 +13,11 @@ pip3 install pystache
 pip3 install uwsgi
 a2enmod wsgi 
 cd /var/www/
-git clone git://github.com/Bassim789/$app_name.git
+git clone "git://github.com/Bassim789/${app_name}.git"
 
-nano /etc/apache2/sites-available/$app_name.conf
+nano "/etc/apache2/sites-available/${app_name}.conf"
 
-cat >/etc/apache2/sites-available/$app_name.conf <<EOL
+cat >"/etc/apache2/sites-available/${app_name}.conf" <<EOL
 <VirtualHost *:80>
 	ServerName ${site_name}
 	ServerAdmin admin@${site_name}
@@ -37,7 +37,7 @@ cat >/etc/apache2/sites-available/$app_name.conf <<EOL
 </VirtualHost>
 EOL
 
-cat >/var/www/$app_name/$app_name.wsgi  <<EOL
+cat >"/var/www/$app_name/${app_name}.wsgi"  <<EOL
 #!/usr/bin/python
 import sys
 import logging
