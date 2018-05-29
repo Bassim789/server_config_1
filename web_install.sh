@@ -8,8 +8,8 @@ sudo apt-get install python3-dev python3-pip -y
 echo !! make sure pip and setuptools are the latest version
 pip3 install --upgrade pip setuptools -y
 
-echo !! go to web folder
-cd /var/www
+#echo !! go to web folder
+#cd /var/www
 
 echo !! clone git repo for flask app perso
 git clone git://github.com/Bassim789/flask_app.git
