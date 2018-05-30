@@ -15,16 +15,14 @@ pip3 install flask
 pip3 install pystache
 pip3 install gunicorn
 
-
-cd /var/www/
 # clone app repo
+cd /var/www/
 git clone "$git_app_repo"
+
 # give user right and become user
-echo "chown"
 chown -R ${user_name}:${user_name} /var/www/
 su -E ${user_name}
-whoami
-echo "app_name: ${app_name}"
+
 # server config
 sudo cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
@@ -35,8 +33,6 @@ server {
 	}
 }
 EOL
-echo $app_name
-echo $server_ip
 sudo ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
 
 # wsgi run app
