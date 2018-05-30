@@ -1,4 +1,5 @@
 app_name='flask_app'
+server_ip='37.74.172.99'
 
 apt-get update
 apt-get install nginx -y
@@ -11,27 +12,23 @@ pip3 install uwsgi
 pip3 install gunicorn
 cd /var/www/
 git clone "git://github.com/Bassim789/${app_name}.git"
-
-/etc/init.d/nginx start
-rm "/etc/nginx/sites-enabled/default"
-touch "/etc/nginx/sites-available/${app_name}"
-ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled/${app_name}"
-cat >"/etc/nginx/sites-enabled/${app_name}" <<EOL
+service nginx start
+cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
+	listen 80;
+	server_name ${server_ip};
 	location / {
-		proxy_pass http://127.0.0.1:8000;
-		proxy_set_header Host $host;
-		proxy_set_header X-Real_IP $remote_addr;
+		proxy_pass http://127.0.0.1:5000;
 	}
 }
 EOL
+ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
 cat >"/var/www/${app_name}/wsgi.py" <<EOL
 from app import app
 if __name__ == "__main__":
 	app.run()
 EOL
-/etc/init.d/nginx restart
-
+service nginx restart
 cd "/var/www/${app_name}"
 echo "run app"
 gunicorn --bind 0.0.0.0:5000 wsgi:app
