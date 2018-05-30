@@ -1,53 +1,40 @@
 app_name='flask_app'
-site_name='37.74.172.99'
-secret_key='5435gdfsgfv4665v4t'
-
-apache_log_dir_var='${APACHE_LOG_DIR}'
 
 apt-get update
-#apt-get install apache2 -y
-apt-get install  nginx -y
+apt-get install nginx -y
 apt-get install python3-dev -y
 apt-get install python3-pip -y
-#apt-get install libapache2-mod-wsgi -y
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
 pip3 install uwsgi
-a2enmod wsgi
+pip3 install gunicorn
 cd /var/www/
 git clone "git://github.com/Bassim789/${app_name}.git"
 
-cat >"/etc/apache2/sites-available/${app_name}.conf" <<EOL
-<VirtualHost *:80>
-	ServerName ${site_name}
-	ServerAdmin webmaster@localhost
-	WSGIScriptAlias / /var/www/${app_name}/${app_name}.wsgi
-	<Directory /var/www/${app_name}/>
-		Order allow,deny
-		Allow from all
-	</Directory>
-	Alias /static /var/www/${app_name}/static
-	<Directory /var/www/${app_name}/static/>
-		Order allow,deny
-		Allow from all
-	</Directory>
-	ErrorLog ${apache_log_dir_var}/error.log
-	LogLevel warn
-	CustomLog ${apache_log_dir_var}/access.log combined
-</VirtualHost>
+/etc/init.d/nginx start
+rm "/etc/nginx/sites-enabled/default"
+touch "/etc/nginx/sites-available/${app_name}"
+ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled/${app_name}"
+cat >"/etc/nginx/sites-enabled/${app_name}" <<EOL
+server {
+	location / {
+		proxy_pass http://127.0.0.1:8000;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real_IP $remote_addr;
+	}
+}
 EOL
-
-cat >"/var/www/${app_name}/wsgi.py"  <<EOL
-from ${app_name} import app
+cat >"/var/www/${app_name}/wsgi.py" <<EOL
+from app import app
 if __name__ == "__main__":
-    app.run()
+	app.run()
 EOL
+/etc/init.d/nginx restart
 
-#service apache2 restart
-#a2ensite $app_name
-#echo "reload apache"
-#systemctl reload apache2
+cd "/var/www/${app_name}"
 echo "run app"
-uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi
-python3 $app_name/app.py
+gunicorn --bind 0.0.0.0:5000 wsgi:app
+#gunicorn my_app:app
+#uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi
+#python3 $app_name/app.py
