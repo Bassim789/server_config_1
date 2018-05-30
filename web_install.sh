@@ -31,6 +31,7 @@ rm -r /var/www/html
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 service nginx start
+service nginx restart
 cd "/var/www/${app_name}"
 gunicorn --bind 0.0.0.0:5000 wsgi:app
 #gunicorn my_app:app
