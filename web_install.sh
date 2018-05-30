@@ -12,7 +12,6 @@ pip3 install uwsgi
 pip3 install gunicorn
 cd /var/www/
 git clone "git://github.com/Bassim789/${app_name}.git"
-service nginx start
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
 	listen 80;
@@ -28,7 +27,10 @@ from app import app
 if __name__ == "__main__":
 	app.run()
 EOL
-service nginx restart
+rm -r /var/www/html
+rm /etc/nginx/sites-available/default
+rm /etc/nginx/sites-enabled/default
+service nginx start
 cd "/var/www/${app_name}"
 echo "run app"
 gunicorn --bind 0.0.0.0:5000 wsgi:app
