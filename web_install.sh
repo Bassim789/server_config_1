@@ -3,22 +3,28 @@
 echo "root:${new_password}" | chpasswd
 useradd -p $(openssl passwd -1 $user_password) $user_name
 usermod -aG sudo $user_name
-su - ${user_name}
 
 # main install
-sudo apt-get update
-sudo apt-get install nginx -y
-sudo apt-get install python3-dev -y
-sudo apt-get install python3-pip -y
+apt-get update
+apt-get install nginx -y
+apt-get install python3-dev -y
+apt-get install python3-pip -y
+apt-get install vsftpd -y
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
 pip3 install gunicorn
 
-# clone app repo
-cd /var/www/
-sudo git clone "$git_app_repo"
 
+cd /var/www/
+# clone app repo
+git clone "$git_app_repo"
+# give user right and become user
+echo "chown"
+chown -R ${user_name}:${user_name} /var/www/
+su -E ${user_name}
+whoami
+echo "app_name: ${app_name}"
 # server config
 sudo cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
@@ -29,6 +35,8 @@ server {
 	}
 }
 EOL
+echo $app_name
+echo $server_ip
 sudo ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
 
 # wsgi run app
