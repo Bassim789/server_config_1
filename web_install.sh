@@ -32,7 +32,6 @@ rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 service nginx start
 cd "/var/www/${app_name}"
-echo "run app"
 gunicorn --bind 0.0.0.0:5000 wsgi:app
 #gunicorn my_app:app
 #uwsgi --socket 0.0.0.0:8000 --protocol=http -w wsgi
