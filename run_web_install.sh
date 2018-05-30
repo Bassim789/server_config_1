@@ -1,5 +1,5 @@
-server_name='vps324508.ovh.net'
-ip='37.74.172.99'
-sudo ssh-keygen -R $server_name
+source $(dirname "$0")/config.sh
+sudo ssh-keygen -R $server_name1
 ssh-keygen -R $server_name
-ssh 'root@'$server_name 'bash -s' < "$(dirname -- "$0")/web_install.sh"
+cat "$(dirname "$0")/config.sh" "$(dirname -- "$0")/web_install.sh" > "$(dirname -- "$0")/web_install_config.sh"
+ssh 'root@'$server_name 'bash -s' < "$(dirname -- "$0")/web_install_config.sh"
