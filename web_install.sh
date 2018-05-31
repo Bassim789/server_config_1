@@ -20,24 +20,21 @@ pip3 install gunicorn
 # node js
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 apt-get install nodejs -y
-echo "node-stylus"
-apt install node-stylus --save -g
-echo "walk"
-npm install walk --save -g
-echo "babel"
-npm install babel-cli babel-preset-es2015 --save -g
-npm install stylus --save -g
-npm install css2stylus --save -g
-npm install glob --save -g
-npm install sax --save -g
-npm install debug --save -g
-npm install mkdirp --save -g
-npm install express --save -g
-npm install body-parser --save -g
-npm install express-session --save  -g
-npm install cookie-parser --save -g
-npm install socket.io --save -g
-npm install chokidar --save -g
+apt install node-stylus --save
+npm install walk --save
+npm install babel-cli babel-preset-es2015 --save
+npm install stylus --save
+npm install css2stylus --save
+npm install glob --save
+npm install sax --save
+npm install debug --save
+npm install mkdirp --save
+npm install express --save
+npm install body-parser --save
+npm install express-session --save
+npm install cookie-parser --save
+npm install socket.io --save
+npm install chokidar --save
 
 # clone app repo
 cd /var/www/
@@ -45,9 +42,6 @@ git clone "$git_app_repo"
 
 # give user right and become user
 chown -R ${user_name}:${user_name} /var/www/
-#su -E ${user_name}
-#whoami
-#echo "app_name: ${app_name}"
 
 # server config
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
@@ -78,11 +72,11 @@ service nginx start
 service nginx restart
 
 # add https
-# sudo add-apt-repository ppa:certbot/certbot
-# sudo apt-get update
-# sudo apt-get install python-certbot-nginx -y
-# sudo systemctl reload nginx
-# sudo certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
+add-apt-repository ppa:certbot/certbot
+apt-get update
+apt-get install python-certbot-nginx -y
+systemctl reload nginx
+certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
