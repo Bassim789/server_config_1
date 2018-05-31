@@ -28,7 +28,7 @@ apt-get install nodejs -y
 apt install node-stylus -y
 npm init -y
 npm install walk --save
-npm install -g babel-cli babel-preset-es2015 --save
+npm install babel-cli babel-preset-es2015 --save
 npm install stylus --save
 npm install css2stylus --save
 npm install -g glob --save
