@@ -45,10 +45,13 @@ git clone "$git_app_repo"
 
 # give user right and become user
 chown -R ${user_name}:${user_name} /var/www/
-su -E ${user_name}
+#su -E ${user_name}
+
+whoami
+echo "app_name: ${app_name}"
 
 # server config
-sudo cat >"/etc/nginx/sites-available/${app_name}" <<EOL
+cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
 	listen 80;
 	server_name ${site_name};
@@ -57,23 +60,23 @@ server {
 	}
 }
 EOL
-sudo ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
+ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
 
 # wsgi run app
-sudo cat >"/var/www/${app_name}/wsgi.py" <<EOL
+cat >"/var/www/${app_name}/wsgi.py" <<EOL
 from app import app
 if __name__ == "__main__":
 	app.run()
 EOL
 
 # remove default site
-sudo rm -r /var/www/html
-sudo rm /etc/nginx/sites-available/default
-sudo rm /etc/nginx/sites-enabled/default
+rm -r /var/www/html
+rm /etc/nginx/sites-available/default
+rm /etc/nginx/sites-enabled/default
 
 # reload server
-sudo service nginx start
-sudo service nginx restart
+service nginx start
+service nginx restart
 
 # add https
 # sudo add-apt-repository ppa:certbot/certbot
@@ -84,5 +87,5 @@ sudo service nginx restart
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
-sudo pkill gunicorn
-sudo gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload
+pkill gunicorn
+gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload
