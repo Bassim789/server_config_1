@@ -46,9 +46,8 @@ git clone "$git_app_repo"
 # give user right and become user
 chown -R ${user_name}:${user_name} /var/www/
 #su -E ${user_name}
-
-whoami
-echo "app_name: ${app_name}"
+#whoami
+#echo "app_name: ${app_name}"
 
 # server config
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
