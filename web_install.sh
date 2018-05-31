@@ -10,10 +10,34 @@ apt-get install nginx -y
 apt-get install python3-dev -y
 apt-get install python3-pip -y
 apt-get install vsftpd -y
+apt-get install curl -y
+apt-get install python-software-properties -y
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
 pip3 install gunicorn
+
+# node js
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+apt-get install nodejs -y
+echo "node-stylus"
+apt install node-stylus --save -g
+echo "walk"
+npm install walk --save -g
+echo "babel"
+npm install babel-cli babel-preset-es2015 --save -g
+npm install stylus --save -g
+npm install css2stylus --save -g
+npm install glob --save -g
+npm install sax --save -g
+npm install debug --save -g
+npm install mkdirp --save -g
+npm install express --save -g
+npm install body-parser --save -g
+npm install express-session --save  -g
+npm install cookie-parser --save -g
+npm install socket.io --save -g
+npm install chokidar --save -g
 
 # clone app repo
 cd /var/www/
@@ -52,12 +76,13 @@ sudo service nginx start
 sudo service nginx restart
 
 # add https
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install python-certbot-nginx -y
-sudo systemctl reload nginx
-sudo certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
+# sudo add-apt-repository ppa:certbot/certbot
+# sudo apt-get update
+# sudo apt-get install python-certbot-nginx -y
+# sudo systemctl reload nginx
+# sudo certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
+sudo pkill gunicorn
 sudo gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload
