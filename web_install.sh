@@ -1,6 +1,6 @@
 
 # set root and user
-echo "root:${new_password}" | chpasswd
+echo "root:${root_password}" | chpasswd
 useradd -p $(openssl passwd -1 $user_password) $user_name
 usermod -aG sudo $user_name
 
@@ -17,10 +17,16 @@ pip3 install flask
 pip3 install pystache
 pip3 install gunicorn
 
+# clone app repo
+cd /var/www/
+git clone "$git_app_repo"
+cd ${app_name}
+
 # node js
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 apt-get install nodejs -y
-apt install node-stylus --save
+apt install node-stylus -y
+npm init -y
 npm install walk --save
 npm install babel-cli babel-preset-es2015 --save
 npm install stylus --save
@@ -36,10 +42,6 @@ npm install cookie-parser --save
 npm install socket.io --save
 npm install chokidar --save
 
-# clone app repo
-cd /var/www/
-git clone "$git_app_repo"
-
 # give user right and become user
 chown -R ${user_name}:${user_name} /var/www/
 
@@ -50,6 +52,15 @@ server {
 	server_name ${site_name};
 	location / {
 		proxy_pass http://127.0.0.1:${port};
+	}
+	location /app {
+		alias /var/www/${app_name}/app;
+	}
+	location /public {
+		alias /var/www/flask_app/public;
+	}
+	location /compiled {
+		alias /var/www/flask_app/compiled;
 	}
 }
 EOL
