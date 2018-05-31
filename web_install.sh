@@ -28,13 +28,13 @@ apt-get install nodejs -y
 apt install node-stylus -y
 npm init -y
 npm install walk --save
-npm install babel-cli babel-preset-es2015 --save
+npm install -g babel-cli babel-preset-es2015 --save
 npm install stylus --save
 npm install css2stylus --save
-npm install glob --save
-npm install sax --save
-npm install debug --save
-npm install mkdirp --save
+npm install -g glob --save
+npm install -g sax --save
+npm install -g debug --save
+npm install -g mkdirp --save
 npm install express --save
 npm install body-parser --save
 npm install express-session --save
@@ -42,8 +42,10 @@ npm install cookie-parser --save
 npm install socket.io --save
 npm install chokidar --save
 
-# give user right and become user
-chown -R ${user_name}:${user_name} /var/www/
+# remove default site
+rm -r /var/www/html
+rm /etc/nginx/sites-available/default
+rm /etc/nginx/sites-enabled/default
 
 # server config
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
@@ -73,10 +75,8 @@ if __name__ == "__main__":
 	app.run()
 EOL
 
-# remove default site
-rm -r /var/www/html
-rm /etc/nginx/sites-available/default
-rm /etc/nginx/sites-enabled/default
+# give user right and become user
+chown -R ${user_name}:${user_name} /var/www/
 
 # reload server
 service nginx start
