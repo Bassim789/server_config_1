@@ -25,22 +25,36 @@ cd ${app_name}
 # node js
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 apt-get install nodejs -y
-apt install node-stylus -y
 npm init -y
-npm install walk --save
-npm install babel-cli babel-preset-es2015 --save
-npm install stylus --save
-npm install css2stylus --save
-npm install -g glob --save
-npm install -g sax --save
-npm install -g debug --save
-npm install -g mkdirp --save
-npm install express --save
-npm install body-parser --save
-npm install express-session --save
-npm install cookie-parser --save
-npm install socket.io --save
-npm install chokidar --save
+
+
+# apt install node-stylus -y
+# npm install walk --save
+# npm install babel-cli babel-preset-es2015 --save
+# npm install stylus --save
+# npm install css2stylus --save
+# npm install -g glob --save
+# npm install -g sax --save
+# npm install -g debug --save
+# npm install -g mkdirp --save
+# npm install express --save
+# npm install body-parser --save
+# npm install express-session --save
+# npm install cookie-parser --save
+# npm install socket.io --save
+# npm install chokidar --save
+
+
+# webpack
+npm install webpack --save-dev
+npm install webpack-cli --save-dev 
+npm install babel-core babel-loader babel-preset-env --save
+npm install extract-text-webpack-plugin --save
+npm install style-loader css-loader --save
+npm install node-sass sass-loader --save-dev
+
+#json -I -f package.json -e 'this.scripts="bar"'
+#"scripts": { "dev": "webpack --mode development", "build": "webpack --mode production" }
 
 # remove default site
 rm -r /var/www/html
@@ -83,11 +97,11 @@ service nginx start
 service nginx restart
 
 # add https
-add-apt-repository ppa:certbot/certbot
-apt-get update
-apt-get install python-certbot-nginx -y
-systemctl reload nginx
-certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
+# add-apt-repository ppa:certbot/certbot
+# apt-get update
+# apt-get install python-certbot-nginx -y
+# systemctl reload nginx
+# certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
