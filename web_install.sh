@@ -12,10 +12,35 @@ apt-get install python3-pip -y
 apt-get install vsftpd -y
 apt-get install curl -y
 apt-get install python-software-properties -y
+
+apt-get install php7.0 php7.0-fpm php7.0-gd php7.0-mysql php7.0-cli php7.0-common php7.0-curl php7.0-opcache php7.0-json
+apt-get install php-fpm php-mysql -y
+
+
+
+echo "mysql-server-5.6 mysql-server/root_password password ${db_root_password}" | sudo debconf-set-selections
+echo "mysql-server-5.6 mysql-server/root_password_again password ${db_root_password}" | sudo debconf-set-selections
+apt-get -y install mysql-server-5.6
+mysql_secure_installation
+sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/my.cnf
+mysql -uroot -p -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
+service mysql restart
+
+
+ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
+
+
+DEBIAN_FRONTEND=noninteractive apt-get install phpmyadmin -y
+apt-get install php-mbstring php-gettext -y
+
+# mysqladmin -u root password fsdgg65OJ9d9dDNk
+
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
 pip3 install gunicorn
+pip3 install beautifulsoup4
+pip3 install regex
 
 # clone app repo
 cd /var/www/
@@ -55,6 +80,11 @@ npm i -D uglifyjs-webpack-plugin
 npm install extract-text-webpack-plugin@next --save
 npm install babel-cli babel-preset-es2015 --save
 npm install stylus --save
+npm install node-watch --save
+#npm install jquery --save
+#npm install mustache --save
+#npm install socket.io --save
+npm install fs --save
 
 
 cat >"/var/www/${app_name}/config_package_json.py" <<EOL
@@ -84,7 +114,8 @@ server {
 	listen 80;
 	server_name ${site_name};
 	location / {
-		proxy_pass http://127.0.0.1:${port};
+		proxy_pass http://127.0.0.1:5000;
+		proxy_redirect off;
 	}
 	location /app {
 		alias /var/www/${app_name}/app;
@@ -92,12 +123,27 @@ server {
 	location /public {
 		alias /var/www/flask_app/public;
 	}
-	location /compiled {
-		alias /var/www/flask_app/compiled;
-	}
 	location /dist {
 		alias /var/www/flask_app/dist;
 	}
+	location /phpmyadmin {
+       root /usr/share/;
+       index index.php index.html index.htm;
+       location ~ ^/phpmyadmin/(.+\.php)$ {
+               try_files $uri =404;
+               root /usr/share/;
+               fastcgi_pass unix:/var/run/php5-fpm.sock; # or 127.0.0.1:9000
+               fastcgi_index index.php;
+               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+               include /etc/nginx/fastcgi_params;
+       }
+       location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+               root /usr/share/;
+       }
+    }
+    location /phpMyAdmin {
+           rewrite ^/* /phpmyadmin last;
+    }
 }
 EOL
 ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
@@ -126,4 +172,4 @@ service nginx restart
 # run app with gunicorn
 cd "/var/www/${app_name}"
 pkill gunicorn
-gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload
+gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload --error-logfile "/var/www/${app_name}/error/python.txt"
