@@ -29,8 +29,7 @@ apt-get install mysql-server -y
 
 service mysql restart
 apt-get update upgrade
-apt-get install phpmyadmin -y
-
+apt-get install phpmyadmin -y &
 
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
@@ -38,6 +37,9 @@ pip3 install pystache
 pip3 install gunicorn
 pip3 install beautifulsoup4
 pip3 install regex
+
+pkill -f 'dpkg'
+dpkg --configure -a -n
 
 # clone app repo
 cd /var/www/
@@ -47,26 +49,22 @@ cd ${app_name}
 ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 
 
-apt-get -f remove
-apt-get install -f
-
 # node js
 # apt-get remove nodejs -y
 
 curl -sL https://deb.nodesource.com/setup_10.x | -E bash -
 apt-get install nodejs -y
-apt-get install build-essential
+apt-get install npm -y
 #npm init -y
 
 
 # npm
-# npm install express --save
-# npm install body-parser --save
-# npm install express-session --save
-# npm install cookie-parser --save
-# npm install socket.io --save
-# npm install chokidar --save
-
+npm install express --save
+npm install body-parser --save
+npm install express-session --save
+npm install cookie-parser --save
+npm install chokidar --save
+npm install socket.io --save
 npm install webpack --save
 npm install webpack-cli --save
 npm install babel-core babel-loader babel-preset-env --save
@@ -90,7 +88,6 @@ npm install fs --save
 # npm install -g mkdirp --save
 #npm install jquery --save
 #npm install mustache --save
-#npm install socket.io --save
 
 
 
