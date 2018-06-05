@@ -22,15 +22,14 @@ apt-get install php-mbstring php-gettext -y
 apt-get install php7.0-mbstring -y
 
 
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ${db_root_password}'
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ${db_root_password}'
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password ${db_root_password}"
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password ${db_root_password}"
 apt-get install mysql-server -y
 
 
 service mysql restart
 apt-get update upgrade
 apt-get install phpmyadmin -y
-
 
 
 pip3 install --upgrade pip setuptools -y
@@ -48,11 +47,15 @@ cd ${app_name}
 ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 
 
+apt-get -f remove
+apt-get install -f
+
 # node js
 # apt-get remove nodejs -y
-# curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-# apt-get install nodejs -y
-# apt-get install npm -y
+
+curl -sL https://deb.nodesource.com/setup_10.x | -E bash -
+apt-get install nodejs -y
+apt-get install build-essential
 #npm init -y
 
 
@@ -64,17 +67,17 @@ ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 # npm install socket.io --save
 # npm install chokidar --save
 
-# npm install webpack --save
-# npm install webpack-cli --save
-# npm install babel-core babel-loader babel-preset-env --save
-# npm install style-loader css-loader stylus-loader --save
-# npm install node-sass sass-loader --save
-# npm i -D uglifyjs-webpack-plugin
-# npm install extract-text-webpack-plugin@next --save
-# npm install babel-cli babel-preset-es2015 --save
-# npm install stylus --save
-# npm install node-watch --save
-# npm install fs --save
+npm install webpack --save
+npm install webpack-cli --save
+npm install babel-core babel-loader babel-preset-env --save
+npm install style-loader css-loader stylus-loader --save
+npm install node-sass sass-loader --save
+npm i -D uglifyjs-webpack-plugin
+npm install extract-text-webpack-plugin@next --save
+npm install babel-cli babel-preset-es2015 --save
+npm install stylus --save
+npm install node-watch --save
+npm install fs --save
 
 # apt install node-stylus -y
 # npm install walk --save
@@ -164,12 +167,8 @@ EOL
 # give user right and become user
 chown -R ${user_name}:${user_name} /var/www/${app_name}
 
-echo "ok1"
-
 # reload server
 service nginx restart
-
-echo "ok2"
 
 # add https
 # add-apt-repository ppa:certbot/certbot
@@ -180,7 +179,7 @@ echo "ok2"
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
-echo "ok3"
 pkill gunicorn
-echo "ok4"
+npm run dev &
 gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload --error-logfile "/var/www/${app_name}/error/python.txt"
+
