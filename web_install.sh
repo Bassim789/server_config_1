@@ -5,35 +5,33 @@ useradd -p $(openssl passwd -1 $user_password) $user_name
 usermod -aG sudo $user_name
 
 # main install
-apt-get update
+apt-get update upgrade
 apt-get install nginx -y
 apt-get install python3-dev -y
 apt-get install python3-pip -y
 apt-get install vsftpd -y
 apt-get install curl -y
 apt-get install python-software-properties -y
-
-apt-get install php7.0 php7.0-fpm php7.0-gd php7.0-mysql php7.0-cli php7.0-common php7.0-curl php7.0-opcache php7.0-json
-apt-get install php-fpm php-mysql -y
+apt-get install dialog apt-utils -y
 
 
-
-echo "mysql-server-5.6 mysql-server/root_password password ${db_root_password}" | sudo debconf-set-selections
-echo "mysql-server-5.6 mysql-server/root_password_again password ${db_root_password}" | sudo debconf-set-selections
-apt-get -y install mysql-server-5.6
-mysql_secure_installation
-sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/my.cnf
-mysql -uroot -p -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
-service mysql restart
-
-
-ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
-
-
-DEBIAN_FRONTEND=noninteractive apt-get install phpmyadmin -y
+add-apt-repository ppa:ondrej/php -y
+apt-get update
+apt-get install php7.0 php7.0-fpm php7.0-gd php7.0-mysql php7.0-cli php7.0-common php7.0-curl php7.0-opcache php7.0-json -y
 apt-get install php-mbstring php-gettext -y
+apt-get install php7.0-mbstring -y
 
-# mysqladmin -u root password fsdgg65OJ9d9dDNk
+
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ${db_root_password}'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ${db_root_password}'
+apt-get install mysql-server -y
+
+
+service mysql restart
+apt-get update upgrade
+apt-get install phpmyadmin -y
+
+
 
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
@@ -47,11 +45,36 @@ cd /var/www/
 git clone "$git_app_repo"
 cd ${app_name}
 
-# node js
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-apt-get install nodejs -y
-npm init -y
+ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 
+
+# node js
+# apt-get remove nodejs -y
+# curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+# apt-get install nodejs -y
+# apt-get install npm -y
+#npm init -y
+
+
+# npm
+# npm install express --save
+# npm install body-parser --save
+# npm install express-session --save
+# npm install cookie-parser --save
+# npm install socket.io --save
+# npm install chokidar --save
+
+# npm install webpack --save
+# npm install webpack-cli --save
+# npm install babel-core babel-loader babel-preset-env --save
+# npm install style-loader css-loader stylus-loader --save
+# npm install node-sass sass-loader --save
+# npm i -D uglifyjs-webpack-plugin
+# npm install extract-text-webpack-plugin@next --save
+# npm install babel-cli babel-preset-es2015 --save
+# npm install stylus --save
+# npm install node-watch --save
+# npm install fs --save
 
 # apt install node-stylus -y
 # npm install walk --save
@@ -62,29 +85,10 @@ npm init -y
 # npm install -g sax --save
 # npm install -g debug --save
 # npm install -g mkdirp --save
-npm install express --save
-npm install body-parser --save
-npm install express-session --save
-npm install cookie-parser --save
-npm install socket.io --save
-npm install chokidar --save
-
-
-# webpack
-npm install webpack --save
-npm install webpack-cli --save
-npm install babel-core babel-loader babel-preset-env --save
-npm install style-loader css-loader stylus-loader --save
-npm install node-sass sass-loader --save
-npm i -D uglifyjs-webpack-plugin
-npm install extract-text-webpack-plugin@next --save
-npm install babel-cli babel-preset-es2015 --save
-npm install stylus --save
-npm install node-watch --save
 #npm install jquery --save
 #npm install mustache --save
 #npm install socket.io --save
-npm install fs --save
+
 
 
 cat >"/var/www/${app_name}/config_package_json.py" <<EOL
@@ -99,7 +103,6 @@ package_json['scripts'] = {
 file = open(filename, "w")
 file.write(json.dumps(package_json, indent=4)) 
 file.close()
-
 EOL
 python3 config_package_json.py
 
@@ -107,6 +110,9 @@ python3 config_package_json.py
 rm -r /var/www/html
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
+
+uri='$uri'
+fastcgi_param='$document_root$fastcgi_script_name'
 
 # server config
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
@@ -127,23 +133,23 @@ server {
 		alias /var/www/flask_app/dist;
 	}
 	location /phpmyadmin {
-       root /usr/share/;
-       index index.php index.html index.htm;
-       location ~ ^/phpmyadmin/(.+\.php)$ {
-               try_files $uri =404;
-               root /usr/share/;
-               fastcgi_pass unix:/var/run/php5-fpm.sock; # or 127.0.0.1:9000
-               fastcgi_index index.php;
-               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-               include /etc/nginx/fastcgi_params;
-       }
-       location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
-               root /usr/share/;
-       }
-    }
-    location /phpMyAdmin {
-           rewrite ^/* /phpmyadmin last;
-    }
+		root /usr/share/;
+		index index.php index.html index.htm;
+		location ~ ^/phpmyadmin/(.+\.php)$ {
+			try_files $uri =404;
+			root /usr/share/;
+			fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+			fastcgi_index index.php;
+			fastcgi_param SCRIPT_FILENAME $fastcgi_param;
+			include /etc/nginx/fastcgi_params;
+		}
+		location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+			root /usr/share/;
+		}
+	}
+	location /phpMyAdmin {
+		rewrite ^/* /phpmyadmin last;
+	}
 }
 EOL
 ln -s "/etc/nginx/sites-available/${app_name}" "/etc/nginx/sites-enabled"
@@ -156,11 +162,14 @@ if __name__ == "__main__":
 EOL
 
 # give user right and become user
-chown -R ${user_name}:${user_name} /var/www/
+chown -R ${user_name}:${user_name} /var/www/${app_name}
+
+echo "ok1"
 
 # reload server
-service nginx start
 service nginx restart
+
+echo "ok2"
 
 # add https
 # add-apt-repository ppa:certbot/certbot
@@ -171,5 +180,7 @@ service nginx restart
 
 # run app with gunicorn
 cd "/var/www/${app_name}"
+echo "ok3"
 pkill gunicorn
+echo "ok4"
 gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload --error-logfile "/var/www/${app_name}/error/python.txt"
