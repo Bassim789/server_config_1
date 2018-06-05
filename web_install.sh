@@ -46,15 +46,31 @@ npm init -y
 
 
 # webpack
-npm install webpack --save-dev
-npm install webpack-cli --save-dev 
+npm install webpack --save
+npm install webpack-cli --save
 npm install babel-core babel-loader babel-preset-env --save
 npm install extract-text-webpack-plugin --save
 npm install style-loader css-loader --save
-npm install node-sass sass-loader --save-dev
+npm install node-sass sass-loader --save
+npm install babel-cli babel-preset-es2015 --save
+npm i -D uglifyjs-webpack-plugin
 
-#json -I -f package.json -e 'this.scripts="bar"'
-#"scripts": { "dev": "webpack --mode development", "build": "webpack --mode production" }
+
+cat >"/var/www/${app_name}/config_package_json.py" <<EOL
+import json
+filename = "package.json"
+with open(filename) as f:  
+	package_json = json.loads(f.read())
+package_json['scripts'] = { 
+	"dev": "NODE_ENV=dev webpack --mode development", 
+	"prod": "webpack --mode production" 
+}
+file = open(filename, "w")
+file.write(json.dumps(package_json, indent=4)) 
+file.close()
+
+EOL
+python3 config_package_json.py
 
 # remove default site
 rm -r /var/www/html
@@ -77,6 +93,9 @@ server {
 	}
 	location /compiled {
 		alias /var/www/flask_app/compiled;
+	}
+	location /dist {
+		alias /var/www/flask_app/dist;
 	}
 }
 EOL
