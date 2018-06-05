@@ -37,23 +37,24 @@ npm init -y
 # npm install -g sax --save
 # npm install -g debug --save
 # npm install -g mkdirp --save
-# npm install express --save
-# npm install body-parser --save
-# npm install express-session --save
-# npm install cookie-parser --save
-# npm install socket.io --save
-# npm install chokidar --save
+npm install express --save
+npm install body-parser --save
+npm install express-session --save
+npm install cookie-parser --save
+npm install socket.io --save
+npm install chokidar --save
 
 
 # webpack
 npm install webpack --save
 npm install webpack-cli --save
 npm install babel-core babel-loader babel-preset-env --save
-npm install extract-text-webpack-plugin --save
-npm install style-loader css-loader --save
+npm install style-loader css-loader stylus-loader --save
 npm install node-sass sass-loader --save
-npm install babel-cli babel-preset-es2015 --save
 npm i -D uglifyjs-webpack-plugin
+npm install extract-text-webpack-plugin@next --save
+npm install babel-cli babel-preset-es2015 --save
+npm install stylus --save
 
 
 cat >"/var/www/${app_name}/config_package_json.py" <<EOL
