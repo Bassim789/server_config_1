@@ -4,6 +4,8 @@ echo "root:${root_password}" | chpasswd
 useradd -p $(openssl passwd -1 $user_password) $user_name
 usermod -aG sudo $user_name
 
+#dpkg --configure -a
+
 # main install
 apt-get update upgrade
 apt-get install nginx -y
@@ -29,7 +31,11 @@ apt-get install mysql-server -y
 
 service mysql restart
 apt-get update upgrade
-apt-get install phpmyadmin -y &
+
+
+
+apt-get install -qq -o=Dpkg::Use-Pty=0 phpmyadmin
+
 
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
@@ -38,8 +44,8 @@ pip3 install gunicorn
 pip3 install beautifulsoup4
 pip3 install regex
 
-pkill -f 'dpkg'
-dpkg --configure -a -n
+#pkill -f 'dpkg'
+#dpkg --configure -a &
 
 # clone app repo
 cd /var/www/
@@ -48,6 +54,8 @@ cd ${app_name}
 
 ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 
+
+#pkill -f 'dpkg'
 
 # node js
 # apt-get remove nodejs -y
@@ -59,6 +67,10 @@ apt-get install npm -y
 
 
 # npm
+npm install glob --save
+npm install sax --save
+npm install debug --save
+npm install mkdirp --save
 npm install express --save
 npm install body-parser --save
 npm install express-session --save
@@ -76,16 +88,14 @@ npm install babel-cli babel-preset-es2015 --save
 npm install stylus --save
 npm install node-watch --save
 npm install fs --save
+npm install css-hot-loader --save
+
 
 # apt install node-stylus -y
 # npm install walk --save
 # npm install babel-cli babel-preset-es2015 --save
 # npm install stylus --save
 # npm install css2stylus --save
-# npm install -g glob --save
-# npm install -g sax --save
-# npm install -g debug --save
-# npm install -g mkdirp --save
 #npm install jquery --save
 #npm install mustache --save
 
@@ -178,5 +188,6 @@ service nginx restart
 cd "/var/www/${app_name}"
 pkill gunicorn
 npm run dev &
+node node/watcher.js &
 gunicorn --bind "0.0.0.0:${port}" wsgi:app --reload --error-logfile "/var/www/${app_name}/error/python.txt"
 
