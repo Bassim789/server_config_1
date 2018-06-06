@@ -4,8 +4,6 @@ echo "root:${root_password}" | chpasswd
 useradd -p $(openssl passwd -1 $user_password) $user_name
 usermod -aG sudo $user_name
 
-#dpkg --configure -a
-
 # main install
 apt-get update upgrade
 apt-get install nginx -y
@@ -16,27 +14,22 @@ apt-get install curl -y
 apt-get install python-software-properties -y
 apt-get install dialog apt-utils -y
 
-
+# php
 add-apt-repository ppa:ondrej/php -y
 apt-get update
 apt-get install php7.0 php7.0-fpm php7.0-gd php7.0-mysql php7.0-cli php7.0-common php7.0-curl php7.0-opcache php7.0-json -y
 apt-get install php-mbstring php-gettext -y
 apt-get install php7.0-mbstring -y
 
-
+# mysql
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password ${db_root_password}"
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password ${db_root_password}"
 apt-get install mysql-server -y
-
-
 service mysql restart
 apt-get update upgrade
-
-
-
 apt-get install -qq -o=Dpkg::Use-Pty=0 phpmyadmin
 
-
+# python
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
@@ -44,27 +37,18 @@ pip3 install gunicorn
 pip3 install beautifulsoup4
 pip3 install regex
 
-#pkill -f 'dpkg'
-#dpkg --configure -a &
-
 # clone app repo
 cd /var/www/
 git clone "$git_app_repo"
 cd ${app_name}
 
+# access phpmyadmin
 ln -s /usr/share/phpmyadmin "/var/www/${app_name}/phpmyadmin"
 
-
-#pkill -f 'dpkg'
-
 # node js
-# apt-get remove nodejs -y
-
 curl -sL https://deb.nodesource.com/setup_10.x | -E bash -
 apt-get install nodejs -y
 apt-get install npm -y
-#npm init -y
-
 
 # npm
 npm install glob --save
@@ -90,17 +74,10 @@ npm install node-watch --save
 npm install fs --save
 npm install css-hot-loader --save
 
-
-# apt install node-stylus -y
-# npm install walk --save
-# npm install babel-cli babel-preset-es2015 --save
-# npm install stylus --save
-# npm install css2stylus --save
 #npm install jquery --save
 #npm install mustache --save
 
-
-
+# add scripts to package.json
 cat >"/var/www/${app_name}/config_package_json.py" <<EOL
 import json
 filename = "package.json"
@@ -121,10 +98,9 @@ rm -r /var/www/html
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 
+# server config
 uri='$uri'
 fastcgi_param='$document_root$fastcgi_script_name'
-
-# server config
 cat >"/etc/nginx/sites-available/${app_name}" <<EOL
 server {
 	listen 80;
@@ -171,10 +147,8 @@ if __name__ == "__main__":
 	app.run()
 EOL
 
-# give user right and become user
+# give user right on project
 chown -R ${user_name}:${user_name} /var/www/${app_name}
-
-# reload server
 service nginx restart
 
 # add https
@@ -184,7 +158,7 @@ service nginx restart
 # systemctl reload nginx
 # certbot --non-interactive --redirect --agree-tos --nginx -m ${email_ssl} -d ${site_name}
 
-# run app with gunicorn
+# run app with gunicorn, watcher and webpack
 cd "/var/www/${app_name}"
 pkill gunicorn
 npm run dev &
