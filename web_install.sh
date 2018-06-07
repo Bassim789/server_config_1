@@ -77,6 +77,7 @@ apt-get install python3-dev -y
 apt-get install python3-pip -y
 apt-get install python-software-properties -y
 apt-get install libmysqlclient-dev -y
+apt-get install sendmail -y
 pip3 install --upgrade pip setuptools -y
 pip3 install flask
 pip3 install pystache
@@ -84,6 +85,9 @@ pip3 install gunicorn
 pip3 install beautifulsoup4
 pip3 install regex
 pip3 install mysqlclient
+pip3 install werkzeug
+pip3 install flask_mail
+
 
 
 # clone app repo
@@ -152,7 +156,8 @@ config_json = {
 	"db_mysql_db_host": "localhost",
 	"db_mysql_db_name": "${db_name}",
 	"db_mysql_db_user": "${db_user}",
-	"db_mysql_db_password": "${db_user_password}"
+	"db_mysql_db_password": "${db_user_password}",
+	"captcha_private_key": "${captcha_private_key}"
 }
 file = open(root_path + filename, "w")
 file.write(json.dumps(config_json, indent=4)) 
