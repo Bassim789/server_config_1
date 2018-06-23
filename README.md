@@ -1,25 +1,5 @@
 # server_config_1
 
-config.sh:
-
-app_name='exemple_app'
-
-site_name='exemple.com'
-
-server_ip='11.11.111.11'
-
-server_name='vps111.ovh.net'
-
-port='5000'
-
-email_ssl='user1@exemple.com'
-
-git_app_repo='git://github.com/exemple/exemple_app.git'
-
-user_name='user1'
-
-old_password='****'
-
-new_password='****'
-
-user_password='****'
+1) You need to fill the variables in the config.sh file.
+2) Run the script "run_web_install.sh" from your local computer.
+3) It will execute the script "web_install.sh" on the remote server and install everything.

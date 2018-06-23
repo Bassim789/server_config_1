@@ -184,10 +184,10 @@ server {
 		alias /var/www/${app_name}/app;
 	}
 	location /public {
-		alias /var/www/flask_app/public;
+		alias /var/www/${app_name}/public;
 	}
 	location /dist {
-		alias /var/www/flask_app/dist;
+		alias /var/www/${app_name}/dist;
 	}
 	location /phpmyadmin {
 		root /usr/share/;
